@@ -10,18 +10,32 @@ const {
 } = require("graphql");
 const app = express();
 
+const authors = [
+  { id: 1, name: "Jk Rowling" },
+  { id: 2, name: "Michael Cricton" },
+];
+
 const books = [
   {
     id: 1,
     title: "Harry Potter and the Chamber of Secrets",
-    author: "J.K. Rowling",
+    authorId: 1,
   },
   {
     id: 2,
     title: "Jurassic Park",
-    author: "Michael Crichton",
+    authorId: 2,
   },
 ];
+
+const AuthorType = new GraphQLObjectType({
+  name: "Author",
+  description: "Author of book",
+  fields: () => ({
+    id: { type: new GraphQLNonNull(GraphQLInt) },
+    name: { type: new GraphQLNonNull(GraphQLString) },
+  }),
+});
 
 const BookType = new GraphQLObjectType({
   name: "Book",
@@ -29,7 +43,13 @@ const BookType = new GraphQLObjectType({
   fields: () => ({
     id: { type: new GraphQLNonNull(GraphQLInt) },
     title: { type: new GraphQLNonNull(GraphQLString) },
-    author: { type: new GraphQLNonNull(GraphQLString) },
+    authorId: { type: new GraphQLNonNull(GraphQLInt) },
+    author: {
+      type: AuthorType,
+      resolve: (book) => {
+        return authors.find((author) => author.id === book.authorId);
+      },
+    },
   }),
 });
 
